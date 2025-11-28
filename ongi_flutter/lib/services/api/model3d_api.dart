@@ -1,7 +1,7 @@
 import 'api_service.dart';
 
 class Model3DApi {
-  static const String _modelsEndpoint = "/api/models/";
+  static const String _modelsEndpoint = "/api/model3d/";
   static const String _artifactsPath = "artifacts/";
   static const String _statusParam = "status";
   static const String _defaultStatus = 'completed';
