@@ -1,12 +1,26 @@
 # libil2cpp.so 누락 문제 해결 가이드
 
-## 문제 요약
+## 🔴 문제 요약
 
+### 에러 1: 네이티브 라이브러리 누락
 ```
-JNI FatalError called: Unable to load library: libil2cpp.so [dlopen failed: library "libil2cpp.so" not found]
+JNI FatalError called: Unable to load library: libil2cpp.so
+[dlopen failed: library "libil2cpp.so" not found]
 ```
 
-Unity IL2CPP 네이티브 라이브러리가 누락되어 앱이 크래시됩니다.
+### 에러 2: Flutter-Unity 통합 실패
+```
+runtime.cc:574] at com.xraph.plugin.flutter_unity_widget.UnityPlayerUtils.createUnityPlayer
+runtime.cc:574] at com.unity3d.player.NativeLoader.load(Native method)
+```
+
+**근본 원인**:
+1. Unity IL2CPP 네이티브 라이브러리 (`libil2cpp.so`) 누락
+2. Gradle 프로젝트 설정 오류 (`settings.gradle` 경로 문제)
+
+**✅ 수정 완료**:
+- `ongi_flutter/android/settings.gradle` 경로 수정됨
+- `include ':unityLibrary:unityLibrary'` → `include ':unityLibrary'`
 
 ---
 
@@ -222,4 +236,48 @@ cat ~/.config/unity3d/Editor.log  # Linux
 
 # Unity Export 후 파일 목록
 find ongi_flutter/android/unityLibrary/src/main/jniLibs -name "*.so"
+```
+
+---
+
+## ⚡ 빠른 시작 가이드 (현재 상태 기준)
+
+### 현재 수정된 사항
+
+✅ `ongi_flutter/android/settings.gradle` 경로 수정 완료
+
+### 다음 단계
+
+**Unity Editor가 있는 경우:**
+
+1. Unity 프로젝트 열기 (`unity_gaussian_splatting_viewer`)
+2. `File` → `Build Settings` → Platform: **Android**
+3. `Player Settings` → `Other Settings`:
+   - Scripting Backend: **IL2CPP** ✓
+   - Target Architectures: **ARM64**, **ARMv7** ✓
+4. **먼저 빌드**: `Build` 버튼 클릭 → 임시 경로에 APK 빌드
+5. **그 다음 Export**: `Export Project` 체크 → `Export` → 경로: `ongi_flutter/android/unityLibrary`
+6. Flutter 빌드:
+   ```bash
+   cd ongi_flutter
+   flutter clean
+   flutter build apk --debug
+   ```
+
+**Unity Editor가 없는 경우:**
+
+Mono 스크립팅 백엔드로 임시 해결 (성능 저하 있음):
+- Unity Editor 필요 (현재 상황에서는 Unity 재 Export 불가피)
+
+### 검증
+
+```bash
+# libil2cpp.so 존재 확인
+ls -lh ongi_flutter/android/unityLibrary/src/main/jniLibs/arm64-v8a/libil2cpp.so
+
+# 파일 크기 확인 (30-50MB 정도)
+du -h ongi_flutter/android/unityLibrary/src/main/jniLibs/arm64-v8a/libil2cpp.so
+
+# Flutter 빌드 테스트
+cd ongi_flutter && flutter build apk --debug
 ```
