@@ -67,8 +67,10 @@ public class UnityMessageManager : MonoBehaviour
     /// <summary>
     /// iOS 플랫폼에서 Flutter로 메시지 전송
     /// </summary>
+    #if UNITY_IOS
     [DllImport("__Internal")]
     private static extern void onUnityMessage(string message);
+    #endif
 
     private void SendMessageToFlutterIOS(string message)
     {
