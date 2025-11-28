@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:model_viewer_plus/model_viewer_plus.dart';
 import '../../providers/model3d_provider.dart';
 import '../../services/api/api_service.dart';
 import '../gaussian_splatting/gaussian_splatting_viewer_screen.dart';
@@ -12,22 +11,22 @@ class HomeScreenPage extends StatefulWidget {
 
 class _HomeScreenPageState extends State<HomeScreenPage> {
   static const String _headerImagePath = 'assets/images/eaves.png';
-  static const String _defaultLoadingMessage = '3D 모델 불러오는 중...';
-  static const String _defaultModelName = '3D 유물';
+  static const String _defaultLoadingMessage = '모델 불러오는 중...';
+  static const String _defaultModelName = '유물';
   static const String _incompleteModelMessage = '모델 정보가 불완전합니다';
-  static const String _noModelsMessage = '사용 가능한 3D 모델이 없습니다';
+  static const String _noModelsMessage = '사용 가능한 모델이 없습니다';
   static const String _loadFailedMessage = '모델 로드 실패';
   static const String _loadErrorMessage = '모델을 불러올 수 없습니다';
   static const String _retryButtonText = '다시 시도';
+  static const String _gaussianButtonText = '가우시안 스플래팅 보기';
 
   static const double _titleFontSize = 24;
   static const double _descriptionFontSize = 14;
   static const double _errorIconSize = 48;
   static const int _descriptionMaxLines = 3;
-  static const Color _backgroundColor = Color.fromARGB(0xFF, 0x00, 0x00, 0x00);
 
   bool _isLoading = true;
-  String _modelUrl = '';
+  String _thumbnailUrl = '';
   String _modelName = _defaultLoadingMessage;
   String _modelDescription = '';
   int _currentModelIndex = 0;
@@ -60,7 +59,7 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
   void _processCurrentModel(Model3DProvider modelProvider) {
     final currentModel = modelProvider.currentModel;
 
-    if (currentModel != null && currentModel['model_url'] != null) {
+    if (currentModel != null) {
       _updateModelInfo(currentModel, modelProvider.currentIndex);
     } else {
       _setErrorState(_incompleteModelMessage);
@@ -70,7 +69,10 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
   /// 모델 정보 업데이트
   void _updateModelInfo(dynamic currentModel, int currentIndex) {
     setState(() {
-      _modelUrl = _buildModelUrl(currentModel['model_url'].toString());
+      // 썸네일 URL 우선 사용, 없으면 기본 이미지
+      final thumbnailPath = currentModel['thumbnail_url'];
+      _thumbnailUrl = thumbnailPath != null ? _buildImageUrl(thumbnailPath.toString()) : '';
+
       _modelName = currentModel['artifact_name'] ?? _defaultModelName;
       _modelDescription = currentModel['description'] ?? '';
       _currentModelIndex = currentIndex;
@@ -78,13 +80,13 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
     });
   }
 
-  /// 모델 URL 구성
-  String _buildModelUrl(String modelPath) {
-    if (modelPath.startsWith('http://') || modelPath.startsWith('https://')) {
-      return modelPath;
+  /// 이미지 URL 구성
+  String _buildImageUrl(String imagePath) {
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
     }
 
-    String formattedUrl = modelPath.startsWith('/') ? modelPath : '/$modelPath';
+    String formattedUrl = imagePath.startsWith('/') ? imagePath : '/$imagePath';
     return "${ApiService.baseUrl}$formattedUrl";
   }
 
@@ -115,73 +117,17 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
     final modelProvider = Provider.of<Model3DProvider>(context, listen: false);
     final currentModel = modelProvider.currentModel;
 
-    if (currentModel != null && currentModel['model_url'] != null) {
+    if (currentModel != null) {
       _updateModelInfo(currentModel, modelProvider.currentIndex);
     }
   }
 
   /// 헤더 이미지
   Widget _buildHeaderImage() {
-    return Stack(
-      children: [
-        Image.asset(
-          _headerImagePath,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-        // 가우시안 스플래팅 뷰어 버튼
-        Positioned(
-          top: 40,
-          right: 16,
-          child: SafeArea(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: _openGaussianSplattingViewer,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(
-                          Icons.view_in_ar,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          '가우시안 스플래팅',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return Image.asset(
+      _headerImagePath,
+      width: double.infinity,
+      fit: BoxFit.cover,
     );
   }
 
@@ -193,15 +139,15 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
     if (currentModel == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('표시할 3D 모델이 없습니다'),
+          content: Text('표시할 모델이 없습니다'),
           backgroundColor: Colors.orange,
         ),
       );
       return;
     }
 
-    // 가우시안 스플래팅 모델 URL 확인 (예: gaussian_model_url 필드)
-    String? gaussianModelUrl = currentModel['gaussian_model_url'] ?? currentModel['model_url'];
+    // 가우시안 스플래팅 모델 URL 확인
+    String? gaussianModelUrl = currentModel['gaussian_model_url'];
 
     if (gaussianModelUrl == null || gaussianModelUrl.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -220,7 +166,7 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
         builder: (context) => GaussianSplattingViewerScreen(
           modelId: currentModel['id']?.toString() ?? 'unknown',
           modelUrl: gaussianModelUrl,
-          modelName: currentModel['artifact_name'] ?? '3D 유물',
+          modelName: currentModel['artifact_name'] ?? '유물',
           description: currentModel['description'],
         ),
       ),
@@ -296,26 +242,42 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
     );
   }
 
-  /// 3D 모델 뷰어
-  Widget _buildModelViewer() {
+  /// 썸네일 이미지 표시
+  Widget _buildThumbnailImage() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_modelUrl.isEmpty) {
+    if (_thumbnailUrl.isEmpty) {
       return _buildErrorView();
     }
 
-    return ModelViewer(
-      key: ValueKey(_modelUrl),
-      backgroundColor: _backgroundColor,
-      src: _modelUrl,
-      alt: _modelDescription,
-      ar: false,
-      autoRotate: true,
-      cameraControls: true,
-      disableZoom: false,
-      autoPlay: true,
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Image.network(
+          _thumbnailUrl,
+          fit: BoxFit.contain,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(
+              Icons.image_not_supported,
+              size: 64,
+              color: Colors.grey,
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -341,6 +303,36 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
             child: const Text(_retryButtonText),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 가우시안 스플래팅 버튼
+  Widget _buildGaussianButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton.icon(
+          onPressed: _openGaussianSplattingViewer,
+          icon: const Icon(Icons.view_in_ar, size: 24),
+          label: const Text(
+            _gaussianButtonText,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -372,7 +364,8 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
         children: [
           _buildModelHeader(modelProvider),
           _buildModelCounter(modelProvider),
-          Expanded(child: _buildModelViewer()),
+          Expanded(child: _buildThumbnailImage()),
+          _buildGaussianButton(),
           _buildModelDescription(),
         ],
       ),
@@ -384,6 +377,7 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
     final modelProvider = Provider.of<Model3DProvider>(context);
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Column(
         children: [
           _buildHeaderImage(),
