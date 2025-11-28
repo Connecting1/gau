@@ -111,7 +111,21 @@ class _GaussianSplattingViewerScreenState
       final type = data['type'];
       final msg = data['message'] ?? '';
 
+      debugPrint('Unity message received: type=$type, message=$msg');
+
       switch (type) {
+        case 'unity_ready':
+          // Unity 초기화 완료
+          debugPrint('Unity is ready, sending model path...');
+          final provider = Provider.of<GaussianSplattingProvider>(
+            context,
+            listen: false,
+          );
+          if (provider.currentFilePath != null) {
+            _sendModelToUnity(provider.currentFilePath!);
+          }
+          break;
+
         case 'loading_started':
           setState(() => _statusMessage = '모델 로딩 시작...');
           break;
@@ -146,21 +160,26 @@ class _GaussianSplattingViewerScreenState
 
   /// Unity 생성 완료
   void _onUnityCreated(UnityWidgetController controller) {
+    debugPrint('Unity widget created, controller initialized');
     _unityController = controller;
     setState(() {
       _isUnityLoaded = true;
-      _statusMessage = 'Unity 준비 완료';
+      _statusMessage = 'Unity 엔진 로드 중...';
     });
 
-    // 모델이 이미 준비되었으면 전송
-    final provider = Provider.of<GaussianSplattingProvider>(
-      context,
-      listen: false,
-    );
+    // Unity가 unity_ready 메시지를 보낼 때까지 대기
+    // 만약 5초 내에 unity_ready 메시지가 없으면 직접 모델 전송 (fallback)
+    Future.delayed(const Duration(seconds: 5), () {
+      final provider = Provider.of<GaussianSplattingProvider>(
+        context,
+        listen: false,
+      );
 
-    if (provider.currentFilePath != null) {
-      _sendModelToUnity(provider.currentFilePath!);
-    }
+      if (!_isModelLoaded && provider.currentFilePath != null) {
+        debugPrint('Timeout: Unity ready signal not received, sending model anyway');
+        _sendModelToUnity(provider.currentFilePath!);
+      }
+    });
   }
 
   /// 헤더 빌드
@@ -229,6 +248,7 @@ class _GaussianSplattingViewerScreenState
       onUnityMessage: _onUnityMessage,
       fullscreen: false,
       hideStatus: true,
+      useAndroidViewSurface: true,  // Android에서 더 나은 렌더링 성능
     );
   }
 

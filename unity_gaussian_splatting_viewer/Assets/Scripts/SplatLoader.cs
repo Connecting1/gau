@@ -45,6 +45,18 @@ public class SplatLoader : MonoBehaviour
         }
 
         Debug.Log("SplatLoader initialized and ready to receive file paths");
+
+        // Unity 초기화 완료를 Flutter에 알림 (1초 후 - Unity 완전 초기화 대기)
+        Invoke("NotifyUnityReady", 1.0f);
+    }
+
+    /// <summary>
+    /// Unity 초기화 완료를 Flutter에 알림
+    /// </summary>
+    private void NotifyUnityReady()
+    {
+        Debug.Log("Sending Unity ready notification to Flutter");
+        SendMessageToFlutter("unity_ready", "Unity initialization completed");
     }
 
     /// <summary>
