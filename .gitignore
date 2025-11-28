@@ -18,3 +18,6 @@ ongi_flutter/.flutter-plugins
 ongi_flutter/.flutter-plugins-dependencies
 ongi_flutter/.packages
 ongi_flutter/build/
+# Gaussian Splatting PLY files (too large for Git)
+*.ply
+ongi_api/media/gaussian/
