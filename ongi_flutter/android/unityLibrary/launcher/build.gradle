@@ -5,7 +5,7 @@ dependencies {
     }
 
 android {
-    namespace "com.ongi.gaussiansplatting"
+    namespace "com.example.ongi_flutter"
     ndkPath "C:/Program Files/Unity/Hub/Editor/2022.3.61f1/Editor/Data/PlaybackEngines/AndroidPlayer/NDK"
 
     compileSdkVersion 35
@@ -19,12 +19,12 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 35
-        applicationId 'com.ongi.gaussiansplatting'
+        applicationId 'com.example.ongi_flutter'
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
         versionCode 1
-        versionName '0.1'
+        versionName '1.0.0'
     }
 
     aaptOptions {
