@@ -39,12 +39,14 @@ public class UnityMessageManager : MonoBehaviour
     /// </summary>
     public void SendMessageToFlutter(string message)
     {
+        Debug.Log($"[Unity -> Flutter] Attempting to send: {message}");
+
         #if UNITY_ANDROID && !UNITY_EDITOR
         SendMessageToFlutterAndroid(message);
         #elif UNITY_IOS && !UNITY_EDITOR
         SendMessageToFlutterIOS(message);
         #else
-        Debug.Log($"[Unity -> Flutter] {message}");
+        Debug.Log($"[Unity -> Flutter] (Editor mode) {message}");
         #endif
     }
 
@@ -54,12 +56,21 @@ public class UnityMessageManager : MonoBehaviour
     private void SendMessageToFlutterAndroid(string message)
     {
         #if UNITY_ANDROID
-        using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+        try
         {
-            using (AndroidJavaObject jo = jc.GetStatic<AndroidJavaObject>("currentActivity"))
+            Debug.Log("[Unity -> Flutter Android] Sending message via JNI");
+            using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
-                jo.Call("onUnityMessage", message);
+                using (AndroidJavaObject jo = jc.GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    jo.Call("onUnityMessage", message);
+                    Debug.Log("[Unity -> Flutter Android] Message sent successfully");
+                }
             }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[Unity -> Flutter Android] Failed to send message: {e.Message}");
         }
         #endif
     }

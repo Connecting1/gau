@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
-using GaussianSplatting.Runtime;
+using GaussianSplatting;
 
 /// <summary>
 /// 가우시안 스플래팅 .ply 파일을 동적으로 로드하는 스크립트
@@ -15,9 +18,15 @@ public class SplatLoader : MonoBehaviour
 
     [Header("Loading Settings")]
     [SerializeField] private GameObject loadingIndicator;
+    [SerializeField] private float loadingTimeout = 300f; // 대용량 파일을 위해 5분으로 증가
+    [SerializeField] private int chunkSizeInMB = 2; // 청크 크기 (MB)
 
     private GaussianSplatAsset currentAsset;
     private Coroutine loadingCoroutine;
+    private CancellationTokenSource cancellationTokenSource;
+    private float loadingProgress = 0f;
+    private bool unityReadyNotificationSent = false;
+    private int frameCount = 0;
 
     void Start()
     {
@@ -38,9 +47,20 @@ public class SplatLoader : MonoBehaviour
         }
 
         Debug.Log("SplatLoader initialized and ready to receive file paths");
+    }
 
-        // Unity 초기화 완료를 Flutter에 알림 (1초 후 - Unity 완전 초기화 대기)
-        Invoke("NotifyUnityReady", 1.0f);
+    void Update()
+    {
+        // Unity 렌더링이 안정화될 때까지 대기 (3프레임 후)
+        if (!unityReadyNotificationSent)
+        {
+            frameCount++;
+            if (frameCount >= 3)
+            {
+                NotifyUnityReady();
+                unityReadyNotificationSent = true;
+            }
+        }
     }
 
     /// <summary>
@@ -48,8 +68,9 @@ public class SplatLoader : MonoBehaviour
     /// </summary>
     private void NotifyUnityReady()
     {
-        Debug.Log("Sending Unity ready notification to Flutter");
+        Debug.Log("=== SENDING UNITY READY SIGNAL TO FLUTTER ===");
         SendMessageToFlutter("unity_ready", "Unity initialization completed");
+        Debug.Log("=== UNITY READY SIGNAL SENT ===");
     }
 
     /// <summary>
@@ -78,6 +99,14 @@ public class SplatLoader : MonoBehaviour
             StopCoroutine(loadingCoroutine);
         }
 
+        // 이전 백그라운드 작업 취소
+        if (cancellationTokenSource != null)
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+        }
+        cancellationTokenSource = new CancellationTokenSource();
+
         // 새 모델 로드 시작
         loadingCoroutine = StartCoroutine(LoadModelCoroutine(filePath));
     }
@@ -87,7 +116,7 @@ public class SplatLoader : MonoBehaviour
     /// </summary>
     private IEnumerator LoadModelCoroutine(string filePath)
     {
-        // 1. 로딩 인디케이터 표시
+        // 로딩 인디케이터 표시
         if (loadingIndicator != null)
         {
             loadingIndicator.SetActive(true);
@@ -95,65 +124,143 @@ public class SplatLoader : MonoBehaviour
 
         SendMessageToFlutter("loading_started", filePath);
 
-        // 2. 이전 모델 언로드
+        // 이전 모델 언로드
         UnloadCurrentModel();
 
-        // 3. .ply 파일을 바이트 배열로 읽기
+        loadingProgress = 0f;
         byte[] fileData = null;
+        Exception loadException = null;
+
         try
         {
-            fileData = File.ReadAllBytes(filePath);
-            Debug.Log($"File loaded: {fileData.Length} bytes");
+            // 파일 크기 확인
+            FileInfo fileInfo = new FileInfo(filePath);
+            long fileSize = fileInfo.Length;
+            float fileSizeMB = fileSize / (1024f * 1024f);
+            Debug.Log($"Loading PLY file: {fileSizeMB:F2} MB");
+
+            // 백그라운드에서 파일 읽기 시작
+            Task<byte[]> loadTask = Task.Run(() => LoadFileInChunks(filePath, cancellationTokenSource.Token), cancellationTokenSource.Token);
+
+            // 로딩 완료 대기 (진행률 업데이트)
+            while (!loadTask.IsCompleted)
+            {
+                // 진행률을 Flutter로 전송
+                SendMessageToFlutter("loading_progress", $"{(loadingProgress * 100):F1}");
+                yield return null;
+            }
+
+            // 작업 취소 확인
+            if (cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                throw new Exception("Loading cancelled");
+            }
+
+            // 결과 가져오기
+            fileData = loadTask.Result;
+            Debug.Log($"File loaded in background: {fileData.Length} bytes");
+
+            // GaussianSplatAsset 생성
+            currentAsset = ScriptableObject.CreateInstance<GaussianSplatAsset>();
+
+            // 데이터 파싱 및 로드 (비동기)
+            bool loadSuccess = false;
+            yield return StartCoroutine(LoadPlyData(fileData, (success) => {
+                loadSuccess = success;
+            }));
+
+            if (!loadSuccess)
+            {
+                throw new Exception("Failed to parse PLY file");
+            }
+
+            // 렌더러에 에셋 할당
+            splatRenderer.m_Asset = currentAsset;
+
+            // 카메라 위치 조정
+            AdjustCameraPosition();
+
+            Debug.Log("Model loaded successfully");
+            SendMessageToFlutter("loading_completed", filePath);
         }
         catch (Exception e)
         {
-            Debug.LogError($"Failed to read file: {e.Message}");
-            SendMessageToFlutter("error", $"File read failed: {e.Message}");
+            loadException = e;
+            Debug.LogError($"Failed to load model: {e.Message}\n{e.StackTrace}");
+            SendMessageToFlutter("error", $"Load failed: {e.Message}");
+        }
+        finally
+        {
+            // 메모리 정리
+            fileData = null;
+            GC.Collect();
+
+            // 로딩 인디케이터 숨김
             if (loadingIndicator != null)
             {
                 loadingIndicator.SetActive(false);
             }
-            yield break;  // 에러 발생 시 종료
-        }
 
-        // 4. GaussianSplatAsset 생성
-        currentAsset = ScriptableObject.CreateInstance<GaussianSplatAsset>();
-
-        // 5. 데이터 파싱 및 로드 (비동기)
-        bool loadSuccess = false;
-        yield return StartCoroutine(LoadPlyData(fileData, (success) => {
-            loadSuccess = success;
-        }));
-
-        // 6. 파싱 실패 확인
-        if (!loadSuccess)
-        {
-            Debug.LogError("Failed to parse PLY file");
-            SendMessageToFlutter("error", "PLY parsing failed");
-            if (loadingIndicator != null)
-            {
-                loadingIndicator.SetActive(false);
-            }
-            yield break;  // 파싱 실패 시 종료
-        }
-
-        // 7. 렌더러에 에셋 할당
-        splatRenderer.m_Asset = currentAsset;
-
-        // 8. 카메라 위치 조정
-        AdjustCameraPosition();
-
-        // 9. 성공 메시지
-        Debug.Log("Model loaded successfully");
-        SendMessageToFlutter("loading_completed", filePath);
-
-        // 10. 로딩 인디케이터 숨김
-        if (loadingIndicator != null)
-        {
-            loadingIndicator.SetActive(false);
+            loadingProgress = 0f;
         }
     }
 
+    /// <summary>
+    /// 백그라운드 스레드에서 파일을 청크 단위로 읽어오기
+    /// 대용량 파일의 경우 메모리 부담을 줄이고 진행률 업데이트 가능
+    /// </summary>
+    private byte[] LoadFileInChunks(string filePath, CancellationToken cancellationToken)
+    {
+        try
+        {
+            FileInfo fileInfo = new FileInfo(filePath);
+            long totalBytes = fileInfo.Length;
+            int chunkSize = chunkSizeInMB * 1024 * 1024; // MB를 바이트로 변환
+
+            List<byte> allData = new List<byte>((int)totalBytes);
+            long bytesRead = 0;
+
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, chunkSize, FileOptions.SequentialScan))
+            {
+                byte[] buffer = new byte[chunkSize];
+                int read;
+
+                while ((read = fs.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    // 취소 확인
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException("File loading cancelled");
+                    }
+
+                    // 읽은 데이터 추가
+                    for (int i = 0; i < read; i++)
+                    {
+                        allData.Add(buffer[i]);
+                    }
+
+                    bytesRead += read;
+
+                    // 진행률 업데이트 (0.0 ~ 0.9, 파싱을 위해 0.1 남김)
+                    loadingProgress = (bytesRead / (float)totalBytes) * 0.9f;
+
+                    // 진행률 로그 (10% 단위)
+                    if (bytesRead % (totalBytes / 10) < chunkSize)
+                    {
+                        Debug.Log($"Loading progress: {(loadingProgress * 100):F1}% ({bytesRead / (1024 * 1024)} MB / {totalBytes / (1024 * 1024)} MB)");
+                    }
+                }
+            }
+
+            Debug.Log($"File loading completed: {allData.Count} bytes");
+            return allData.ToArray();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error loading file in chunks: {e.Message}");
+            throw;
+        }
+    }
 
     /// <summary>
     /// PLY 데이터를 파싱하여 GaussianSplatAsset에 로드
@@ -162,24 +269,64 @@ public class SplatLoader : MonoBehaviour
     {
         try
         {
+            Debug.Log($"Starting PLY parsing: {fileData.Length / (1024 * 1024)} MB");
+            loadingProgress = 0.9f; // 파일 로딩 완료, 파싱 시작
+
             using (MemoryStream stream = new MemoryStream(fileData))
             {
                 // PLY 파일 파싱 (GaussianSplatting 플러그인 사용)
                 // 실제 구현은 Aras-p/UnityGaussianSplatting 플러그인의 API에 따름
 
-                // 임시: 파일 헤더 검증
+                // 파일 헤더 검증
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     string firstLine = reader.ReadLine();
-                    if (firstLine != null && firstLine.Trim() == "ply")
+                    if (firstLine != null && firstLine.Trim().ToLower() == "ply")
                     {
-                        Debug.Log("Valid PLY file detected");
+                        Debug.Log("Valid PLY file detected - header verified");
 
-                        // 실제 파싱 로직은 플러그인 API 사용
+                        // PLY 헤더 정보 읽기
+                        int vertexCount = 0;
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            line = line.Trim();
+
+                            // vertex 개수 파싱
+                            if (line.StartsWith("element vertex"))
+                            {
+                                string[] parts = line.Split(' ');
+                                if (parts.Length >= 3)
+                                {
+                                    int.TryParse(parts[2], out vertexCount);
+                                    Debug.Log($"PLY contains {vertexCount:N0} vertices");
+                                }
+                            }
+
+                            // 헤더 끝
+                            if (line == "end_header")
+                            {
+                                break;
+                            }
+                        }
+
+                        // 진행률 업데이트
+                        loadingProgress = 0.95f;
+                        yield return null;
+
+                        // TODO: 실제 파싱 로직은 GaussianSplatting 플러그인 API 사용
+                        // 현재는 플러그인 API가 구현되지 않아 헤더 검증만 수행
                         // currentAsset.LoadFromPly(fileData);
+
+                        Debug.Log("PLY parsing completed (header validation only - awaiting plugin implementation)");
+                        loadingProgress = 1.0f;
 
                         callback(true);
                         yield break;
+                    }
+                    else
+                    {
+                        Debug.LogError($"Invalid PLY file: Expected 'ply' header, got '{firstLine}'");
                     }
                 }
             }
@@ -188,7 +335,7 @@ public class SplatLoader : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"PLY parsing error: {e.Message}");
+            Debug.LogError($"PLY parsing error: {e.Message}\n{e.StackTrace}");
             callback(false);
         }
     }
@@ -266,11 +413,27 @@ public class SplatLoader : MonoBehaviour
 
     void OnDestroy()
     {
+        // 진행 중인 작업 취소
+        if (cancellationTokenSource != null)
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = null;
+        }
+
         UnloadCurrentModel();
     }
 
     void OnApplicationQuit()
     {
+        // 진행 중인 작업 취소
+        if (cancellationTokenSource != null)
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = null;
+        }
+
         UnloadCurrentModel();
     }
 }
