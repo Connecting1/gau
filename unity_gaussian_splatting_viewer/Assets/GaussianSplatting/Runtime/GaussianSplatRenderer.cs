@@ -467,6 +467,13 @@ namespace GaussianSplatting.Runtime
                 // Use separate sorting compute shader if available, otherwise try with utilities shader
                 ComputeShader sortingCS = m_CSSplatSorting != null ? m_CSSplatSorting : m_CSSplatUtilities;
                 m_Sorter = new GpuSorting(sortingCS);
+
+                if (!m_Sorter.Valid)
+                {
+                    Debug.LogWarning($"[GaussianSplatRenderer] GPU sorting is not supported on this platform. " +
+                                   "This is expected on WebGL and other platforms without wave operation support. " +
+                                   "Splats will render without depth sorting, which may cause visual artifacts.");
+                }
             }
 
             if (!m_Registered && resourcesAreSetUp)
@@ -618,6 +625,16 @@ namespace GaussianSplatting.Runtime
             if (cam.cameraType == CameraType.Preview)
                 return;
 
+            // Check if GPU sorting is supported on this platform
+            EnsureSorterAndRegister();
+            if (m_Sorter == null || !m_Sorter.Valid)
+            {
+                // GPU sorting not supported (e.g., WebGL without wave operations)
+                // Skip sorting - splats will render unsorted which may cause visual artifacts
+                // but is better than crashing
+                return;
+            }
+
             Matrix4x4 worldToCamMatrix = cam.worldToCameraMatrix;
             worldToCamMatrix.m20 *= -1;
             worldToCamMatrix.m21 *= -1;
@@ -637,7 +654,6 @@ namespace GaussianSplatting.Runtime
             cmd.DispatchCompute(m_CSSplatUtilities, (int)KernelIndices.CalcDistances, (m_GpuSortDistances.count + (int)gsX - 1)/(int)gsX, 1, 1);
 
             // sort the splats
-            EnsureSorterAndRegister();
             m_Sorter.Dispatch(cmd, m_SorterArgs);
             cmd.EndSample(s_ProfSort);
         }
