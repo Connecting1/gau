@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|c:\\sanhak\\unity_gaussian_splatting_viewer\\unitygaussiansplattingviewer\\assets\\scripts\\orbitcamera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\orbitcamera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\assets\\scripts\\splatloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\splatloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Library\\PackageCache\\com.unity.burst@1.8.26\\Editor\\BurstAotCompiler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Library\\PackageCache\\com.unity.burst@1.8.26\\Editor\\BurstAotCompiler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\assets\\scripts\\unitymessagemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\unitymessagemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\assets\\scripts\\splatloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\splatloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Plugins\\UnityGaussianSplatting\\package\\Editor\\Utils\\KMeansClustering.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -31,6 +35,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "OrbitCamera.cs",
+              "DocumentMoniker": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Scripts\\OrbitCamera.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\OrbitCamera.cs",
+              "ToolTip": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Scripts\\OrbitCamera.cs",
+              "RelativeToolTip": "Assets\\Scripts\\OrbitCamera.cs",
+              "ViewState": "AQIAAA4AAAAAAAAAAAAAwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-28T18:48:39.579Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "BurstAotCompiler.cs",
               "DocumentMoniker": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Library\\PackageCache\\com.unity.burst@1.8.26\\Editor\\BurstAotCompiler.cs",
               "RelativeDocumentMoniker": "Library\\PackageCache\\com.unity.burst@1.8.26\\Editor\\BurstAotCompiler.cs",
@@ -38,12 +55,11 @@
               "RelativeToolTip": "Library\\PackageCache\\com.unity.burst@1.8.26\\Editor\\BurstAotCompiler.cs",
               "ViewState": "AQIAANQEAAAAAAAAAAAUwOsEAAAjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-26T15:23:25.503Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-26T15:23:25.503Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "UnityMessageManager.cs",
               "DocumentMoniker": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Scripts\\UnityMessageManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnityMessageManager.cs",
@@ -55,19 +71,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "SplatLoader.cs",
               "DocumentMoniker": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Scripts\\SplatLoader.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SplatLoader.cs",
               "ToolTip": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Scripts\\SplatLoader.cs",
               "RelativeToolTip": "Assets\\Scripts\\SplatLoader.cs",
-              "ViewState": "AQIAAKoAAAAAAAAAAAAAAMAAAAAlAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAABBAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-26T14:41:05.466Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "KMeansClustering.cs",
               "DocumentMoniker": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Plugins\\UnityGaussianSplatting\\package\\Editor\\Utils\\KMeansClustering.cs",
               "RelativeDocumentMoniker": "Assets\\Plugins\\UnityGaussianSplatting\\package\\Editor\\Utils\\KMeansClustering.cs",
@@ -75,8 +91,7 @@
               "RelativeToolTip": "Assets\\Plugins\\UnityGaussianSplatting\\package\\Editor\\Utils\\KMeansClustering.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAdAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-26T14:37:31.515Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-26T14:37:31.515Z"
             }
           ]
         }

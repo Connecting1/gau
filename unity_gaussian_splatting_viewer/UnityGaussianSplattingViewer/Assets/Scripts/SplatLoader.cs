@@ -277,9 +277,6 @@ public class SplatLoader : MonoBehaviour
 
         using (MemoryStream stream = new MemoryStream(fileData))
         {
-            // PLY 파일 파싱 (GaussianSplatting 플러그인 사용)
-            // 실제 구현은 Aras-p/UnityGaussianSplatting 플러그인의 API에 따름
-
             // 파일 헤더 검증
             using (StreamReader reader = new StreamReader(stream))
             {
@@ -317,14 +314,35 @@ public class SplatLoader : MonoBehaviour
                     loadingProgress = 0.95f;
                     yield return null;
 
-                    // TODO: 실제 파싱 로직은 GaussianSplatting 플러그인 API 사용
-                    // 현재는 플러그인 API가 구현되지 않아 헤더 검증만 수행
-                    // currentAsset.LoadFromPly(fileData);
+                    // Runtime PLY loading is not yet implemented
+                    // The Aras-p UnityGaussianSplatting plugin requires PLY files to be converted
+                    // in Unity Editor before runtime use.
+                    //
+                    // To use this viewer:
+                    // 1. Open Unity Editor
+                    // 2. Use Tools > Gaussian Splats > Create GaussianSplatAsset to convert PLY files
+                    // 3. Include the converted assets in your build
+                    //
+                    // TODO: Implement runtime PLY loading by:
+                    // - Completing RuntimePLYLoader implementation
+                    // - Creating GaussianSplatAsset with proper data formats at runtime
+                    // - Setting up GPU buffers without TextAsset dependencies
 
-                    Debug.Log("PLY parsing completed (header validation only - awaiting plugin implementation)");
-                    loadingProgress = 1.0f;
+                    Debug.LogError("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    Debug.LogError("Runtime PLY loading is NOT YET IMPLEMENTED");
+                    Debug.LogError("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    Debug.LogError($"PLY file validated: {vertexCount:N0} vertices");
+                    Debug.LogError("The Gaussian Splatting plugin requires PLY files to be");
+                    Debug.LogError("converted in Unity Editor before runtime.");
+                    Debug.LogError("");
+                    Debug.LogError("Next steps:");
+                    Debug.LogError("1. Open this project in Unity Editor");
+                    Debug.LogError("2. Use: Tools > Gaussian Splats > Create GaussianSplatAsset");
+                    Debug.LogError("3. Convert your PLY files to GaussianSplatAsset format");
+                    Debug.LogError("4. Include converted assets in your Flutter app build");
+                    Debug.LogError("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-                    parseSuccess = true;
+                    parseSuccess = false;
                 }
                 else
                 {
