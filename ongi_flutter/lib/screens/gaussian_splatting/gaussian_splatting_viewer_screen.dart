@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'dart:convert';
 import '../../providers/gaussian_splatting_provider.dart';
+import '../../utils/ai_narrative_provider.dart';
 
 /// 가우시안 스플래팅 뷰어 화면
 /// Unity 뷰어를 임베드하여 .ply 파일을 렌더링합니다.
@@ -391,24 +392,74 @@ class _GaussianSplattingViewerScreenState
     );
   }
 
-  /// 설명 섹션
+  /// AI 서술형 설명 섹션
   Widget _buildDescription() {
-    if (widget.description == null || widget.description!.isEmpty) {
+    // AI 서술형 설명 우선 사용
+    final aiNarrative = AiNarrativeProvider.getNarrative(widget.modelName);
+
+    // AI 서술이 없으면 기존 description 사용
+    final displayText = aiNarrative ?? widget.description;
+
+    if (displayText == null || displayText.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      color: Colors.black.withOpacity(0.7),
-      child: Text(
-        widget.description!,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.black.withOpacity(0.85),
+            Colors.black.withOpacity(0.95),
+          ],
         ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
+        border: Border(
+          top: BorderSide(
+            color: Colors.blue.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // AI 서술 헤더 (AI 서술이 있을 때만 표시)
+          if (aiNarrative != null) ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.auto_awesome,
+                  color: Colors.blue.shade300,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'AI 해설',
+                  style: TextStyle(
+                    color: Colors.blue.shade300,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+          // 설명 텍스트
+          Text(
+            displayText,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.6,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }

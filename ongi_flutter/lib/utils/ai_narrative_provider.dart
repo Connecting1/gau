@@ -1,0 +1,38 @@
+/// AI 서술형 설명을 제공하는 유틸리티
+/// 유물 이름에 따라 소설처럼 서술된 설명을 반환합니다.
+class AiNarrativeProvider {
+  /// 유물 이름에 따른 AI 서술형 설명을 반환
+  ///
+  /// [artifactName] 유물 이름
+  /// 반환값: AI 서술형 텍스트. 없으면 null.
+  static String? getNarrative(String? artifactName) {
+    if (artifactName == null) return null;
+
+    // 유물 이름을 소문자로 변환하여 매칭 (공백 제거)
+    final normalizedName = artifactName.toLowerCase().replaceAll(' ', '');
+
+    switch (normalizedName) {
+      case '첨성대':
+      case 'cheomseongdae':
+        return _getCheomseongdaeNarrative();
+
+      // 다른 유물들도 추가 가능
+      default:
+        return null;
+    }
+  }
+
+  /// 첨성대에 대한 AI 서술형 설명
+  static String _getCheomseongdaeNarrative() {
+    return '''신라의 밤하늘을 향해 천 년의 시간을 견뎌온 첨성대. 선덕여왕 시대인 632년부터 647년 사이에 세워진 이 천문 관측대는 동양에서 가장 오래된 현존하는 천문대입니다.
+
+362개의 화강암을 정교하게 쌓아 올린 우아한 곡선은 단순한 건축미를 넘어, 당시 신라인들의 놀라운 과학적 지혜를 담고 있습니다. 높이 9.17미터의 이 탑은 일년의 날수와 24절기를 상징하며, 하늘과 땅을 잇는 우주론적 의미를 간직하고 있습니다.
+
+천년이 지난 지금도 경주 들판에 우뚝 서서, 별을 관측하던 신라 천문학자들의 열정과 지혜를 우리에게 전하고 있습니다.''';
+  }
+
+  /// 설명이 있는지 확인
+  static bool hasNarrative(String? artifactName) {
+    return getNarrative(artifactName) != null;
+  }
+}
