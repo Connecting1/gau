@@ -10,6 +10,7 @@ from .views import (
     generate_artifact_description_stream,
     get_artifact_description,
     regenerate_artifact_description,
+    generate_ai_narrative,
 )
 
 urlpatterns = [
@@ -17,15 +18,20 @@ urlpatterns = [
     path('<uuid:artifact_id>/', artifact_detail_view, name='artifact-detail'),
     path('<uuid:artifact_id>/update/', artifact_update_view, name='artifact-update'),
     path('<uuid:artifact_id>/feeds/', artifact_feeds_view, name='artifact-feeds'),
-    
+
     # ✨ AI 설명 생성 API
-    path('<uuid:artifact_id>/generate-description/', 
-         generate_artifact_description_stream, 
+    path('<uuid:artifact_id>/generate-description/',
+         generate_artifact_description_stream,
          name='generate-artifact-description'),
-    path('<uuid:artifact_id>/description/', 
-         get_artifact_description, 
+    path('<uuid:artifact_id>/description/',
+         get_artifact_description,
          name='get-artifact-description'),
-    path('<uuid:artifact_id>/regenerate-description/', 
-         regenerate_artifact_description, 
+    path('<uuid:artifact_id>/regenerate-description/',
+         regenerate_artifact_description,
          name='regenerate-artifact-description'),
+
+    # ✨ AI 서술형 설명 자동 생성
+    path('generate-narrative/',
+         generate_ai_narrative,
+         name='generate-ai-narrative'),
 ]

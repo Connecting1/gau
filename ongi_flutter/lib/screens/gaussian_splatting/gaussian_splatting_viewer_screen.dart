@@ -391,28 +391,6 @@ class _GaussianSplattingViewerScreenState
     );
   }
 
-  /// 설명 섹션
-  Widget _buildDescription() {
-    if (widget.description == null || widget.description!.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      color: Colors.black.withOpacity(0.7),
-      child: Text(
-        widget.description!,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-        ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -443,8 +421,6 @@ class _GaussianSplattingViewerScreenState
                   ],
                 ),
               ),
-              // 설명 섹션
-              _buildDescription(),
             ],
           );
         },

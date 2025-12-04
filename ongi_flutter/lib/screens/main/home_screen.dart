@@ -32,6 +32,8 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
   String _modelDescription = '';
   int _currentModelIndex = 0;
   bool _isDescriptionExpanded = false; // 설명창 펼침/접힘 상태
+  String? _aiNarrative; // AI 생성 서술형 설명
+  bool _isLoadingNarrative = false; // AI 설명 로딩 상태
 
   @override
   void initState() {
@@ -80,7 +82,42 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
       _currentModelIndex = currentIndex;
       _isLoading = false;
       _isDescriptionExpanded = false; // 모델 변경 시 설명창 접기
+      _aiNarrative = null; // AI 설명 초기화
     });
+
+    // AI 서술형 설명 비동기 로드
+    _loadAiNarrative(_modelName);
+  }
+
+  /// AI 서술형 설명 로드
+  Future<void> _loadAiNarrative(String artifactName) async {
+    if (artifactName.isEmpty || artifactName == _defaultLoadingMessage) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingNarrative = true;
+    });
+
+    try {
+      // 백엔드 API로부터 AI 설명 생성
+      final narrative = await AiNarrativeProvider.getNarrative(artifactName);
+
+      // 여전히 같은 유물인 경우에만 업데이트
+      if (_modelName == artifactName && mounted) {
+        setState(() {
+          _aiNarrative = narrative;
+          _isLoadingNarrative = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading AI narrative: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingNarrative = false;
+        });
+      }
+    }
   }
 
   /// 이미지 URL 구성
@@ -346,9 +383,58 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
       return const SizedBox.shrink();
     }
 
+    // AI 로딩 중이면 로딩 표시
+    if (_isLoadingNarrative) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withOpacity(0.85),
+              Colors.black.withOpacity(0.95),
+            ],
+          ),
+          border: Border(
+            top: BorderSide(
+              color: Colors.blue.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.auto_awesome,
+              color: Colors.blue.shade300,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'AI 해설 생성 중...',
+              style: TextStyle(
+                color: Colors.blue.shade300,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const SizedBox(
+              width: 12,
+              height: 12,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     // AI 서술형 설명 우선 사용
-    final aiNarrative = AiNarrativeProvider.getNarrative(_modelName);
-    final displayText = aiNarrative ?? _modelDescription;
+    final displayText = _aiNarrative ?? _modelDescription;
 
     if (displayText.isEmpty) {
       return const SizedBox.shrink();
@@ -389,7 +475,7 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // AI 해설 헤더 (AI 서술이 있을 때만 표시)
-                if (aiNarrative != null)
+                if (_aiNarrative != null)
                   Row(
                     children: [
                       Icon(
@@ -418,11 +504,11 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                // 펼치기/접기 아이콘
+                // 펼치기/접기 아이콘 (반대 방향)
                 Icon(
                   _isDescriptionExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
+                      ? Icons.keyboard_arrow_down
+                      : Icons.keyboard_arrow_up,
                   color: Colors.white70,
                   size: 24,
                 ),
@@ -446,13 +532,20 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
                 maxLines: _descriptionMaxLines,
                 overflow: TextOverflow.ellipsis,
               ),
-              secondChild: Text(
-                displayText,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: _descriptionFontSize,
-                  height: 1.6,
-                  letterSpacing: 0.3,
+              secondChild: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxHeight: 200, // 최대 높이 제한으로 UI 깨짐 방지
+                ),
+                child: SingleChildScrollView(
+                  child: Text(
+                    displayText,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: _descriptionFontSize,
+                      height: 1.6,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
                 ),
               ),
             ),

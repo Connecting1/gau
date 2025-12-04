@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from .models import Artifact
 from .services import OllamaService
+from .ai_narrative_service import AiNarrativeService
 from django.utils import timezone
 import json
 from .serializers import ArtifactSerializer
@@ -183,17 +184,63 @@ def get_artifact_description(request, artifact_id):
 def regenerate_artifact_description(request, artifact_id):
     """
     유물 설명 강제 재생성
-    
+
     POST /api/artifacts/{artifact_id}/regenerate-description/
     """
     artifact = get_object_or_404(Artifact, id=artifact_id)
-    
+
     # 기존 설명 삭제
     artifact.ai_description = None
     artifact.ai_description_generated_at = None
     artifact.save(update_fields=['ai_description', 'ai_description_generated_at'])
-    
+
     return Response({
         'message': 'AI 설명이 초기화되었습니다. 새로 생성해주세요.',
         'artifact_id': str(artifact.id),
+    })
+
+
+@api_view(['POST'])
+def generate_ai_narrative(request):
+    """
+    유물 이름으로 AI 서술형 설명 생성
+
+    POST /api/artifacts/generate-narrative/
+    Body:
+    {
+        "artifact_name": "첨성대",
+        "use_openai": true  // optional, default: true
+    }
+
+    Response:
+    {
+        "artifact_name": "첨성대",
+        "narrative": "신라의 밤하늘을 향해...",
+        "method": "openai" or "template"
+    }
+    """
+    artifact_name = request.data.get('artifact_name')
+    use_openai = request.data.get('use_openai', True)
+
+    if not artifact_name:
+        return Response(
+            {'error': 'artifact_name is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # AI 서술형 설명 생성
+    narrative = AiNarrativeService.generate_narrative(
+        artifact_name=artifact_name,
+        use_openai=use_openai
+    )
+
+    # 생성 방법 확인
+    method = "template"
+    if use_openai and "천 년의 시간" not in narrative and "문화유산입니다" not in narrative:
+        method = "openai"
+
+    return Response({
+        'artifact_name': artifact_name,
+        'narrative': narrative,
+        'method': method,
     })
