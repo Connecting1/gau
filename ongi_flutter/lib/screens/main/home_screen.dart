@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/model3d_provider.dart';
 import '../../services/api/api_service.dart';
 import '../gaussian_splatting/gaussian_splatting_viewer_screen.dart';
+import '../../utils/ai_narrative_provider.dart';
 
 class HomeScreenPage extends StatefulWidget {
   @override
@@ -30,6 +31,7 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
   String _modelName = _defaultLoadingMessage;
   String _modelDescription = '';
   int _currentModelIndex = 0;
+  bool _isDescriptionExpanded = false; // 설명창 펼침/접힘 상태
 
   @override
   void initState() {
@@ -77,6 +79,7 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
       _modelDescription = currentModel['description'] ?? '';
       _currentModelIndex = currentIndex;
       _isLoading = false;
+      _isDescriptionExpanded = false; // 모델 변경 시 설명창 접기
     });
   }
 
@@ -337,22 +340,124 @@ class _HomeScreenPageState extends State<HomeScreenPage> {
     );
   }
 
-  /// 모델 설명
+  /// AI 서술형 설명 (펼치기/접기 가능)
   Widget _buildModelDescription() {
-    if (_modelDescription.isEmpty || _isLoading) {
+    if (_isLoading) {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Text(
-        _modelDescription,
-        style: const TextStyle(
-          fontSize: _descriptionFontSize,
-          color: Colors.white,
+    // AI 서술형 설명 우선 사용
+    final aiNarrative = AiNarrativeProvider.getNarrative(_modelName);
+    final displayText = aiNarrative ?? _modelDescription;
+
+    if (displayText.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isDescriptionExpanded = !_isDescriptionExpanded;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withOpacity(0.85),
+              Colors.black.withOpacity(0.95),
+            ],
+          ),
+          border: Border(
+            top: BorderSide(
+              color: Colors.blue.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
         ),
-        maxLines: _descriptionMaxLines,
-        overflow: TextOverflow.ellipsis,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 헤더 (AI 해설 + 펼치기/접기 아이콘)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // AI 해설 헤더 (AI 서술이 있을 때만 표시)
+                if (aiNarrative != null)
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.auto_awesome,
+                        color: Colors.blue.shade300,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'AI 해설',
+                        style: TextStyle(
+                          color: Colors.blue.shade300,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    '설명',
+                    style: TextStyle(
+                      color: Colors.grey.shade400,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                // 펼치기/접기 아이콘
+                Icon(
+                  _isDescriptionExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: Colors.white70,
+                  size: 24,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // 설명 텍스트
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 300),
+              crossFadeState: _isDescriptionExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              firstChild: Text(
+                displayText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: _descriptionFontSize,
+                  height: 1.6,
+                  letterSpacing: 0.3,
+                ),
+                maxLines: _descriptionMaxLines,
+                overflow: TextOverflow.ellipsis,
+              ),
+              secondChild: Text(
+                displayText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: _descriptionFontSize,
+                  height: 1.6,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
