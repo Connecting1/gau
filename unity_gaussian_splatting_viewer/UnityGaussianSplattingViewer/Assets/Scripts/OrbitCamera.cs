@@ -55,7 +55,7 @@ public class OrbitCamera : MonoBehaviour
         UpdateCameraPosition();
     }
 
-    void Update()
+    void LateUpdate()
     {
         HandleInput();
         SmoothCamera();

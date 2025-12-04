@@ -268,8 +268,12 @@ class _GaussianSplattingViewerScreenState
     );
   }
 
-  /// 로딩 오버레이
+  /// 로딩 오버레이 (디버깅을 위해 수정됨)
   Widget _buildLoadingOverlay(GaussianSplattingProvider provider) {
+    // ▼▼▼ 수정된 부분: 강제로 빈 화면 반환 (로딩 화면 끄기) ▼▼▼
+    //return const SizedBox.shrink();
+
+    /* 기존 코드 주석 처리 (나중에 다시 복구하세요)*/
     // Unity 로드 완료 & 모델 로드 완료 시 오버레이 숨김
     if (_isUnityLoaded && _isModelLoaded && provider.isViewerReady) {
       return const SizedBox.shrink();

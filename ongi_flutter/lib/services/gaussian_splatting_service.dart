@@ -153,7 +153,7 @@ class GaussianSplattingService {
       }
 
       // Git LFS 포인터 파일인지 확인
-      final lfsData = await _parseGitLfsPointer(savePath);
+      /*final lfsData = await _parseGitLfsPointer(savePath);
       if (lfsData != null && lfsData.containsKey('oid')) {
         debugPrint('Git LFS 포인터 감지됨.');
 
@@ -190,9 +190,10 @@ class GaussianSplattingService {
           );
         }
       }
+      */
 
       // PLY 파일 헤더 검증
-      try {
+      /*try {
         debugPrint('PLY 헤더 검증 중...');
         await _validatePlyFile(savePath);
         debugPrint('PLY 파일 검증 성공!');
@@ -200,7 +201,8 @@ class GaussianSplattingService {
         debugPrint('PLY 파일 검증 실패: $e');
         await file.delete();
         rethrow;
-      }
+      } 
+      */
 
       return savePath;
     } on DioException catch (e) {

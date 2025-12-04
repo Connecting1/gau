@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.ongi_flutter"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "25.1.8937393"
 //    ndkVersion "21.4.7075529"
 
     compileOptions {
@@ -21,14 +21,17 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.ongi_flutter"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // 중요: 가우시안 스플래팅(Vulkan)을 위해 minSdk를 24 이상으로 올립니다.
+        minSdk 28
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Unity 충돌 방지를 위한 NDK 설정 추가
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
     }
 
     buildTypes {

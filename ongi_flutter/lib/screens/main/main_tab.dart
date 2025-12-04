@@ -13,7 +13,7 @@ class MainTabPage extends StatefulWidget {
 }
 
 class _MainTabPageState extends State<MainTabPage> with SingleTickerProviderStateMixin {
-  static const int _tabCount = 5;
+  static const int _tabCount = 4;
   static const double _dividerHeight = 1;
   static const double _bottomPadding = 5;
   static const double _tabFontSize = 12;
