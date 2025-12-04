@@ -1,8 +1,8 @@
 """
 AI 서술형 설명 자동 생성 서비스
 유물 이름을 기반으로 소설처럼 서술된 설명을 생성합니다.
+Ollama llama3.1:8b 모델 사용
 """
-import os
 import logging
 from typing import Optional
 
@@ -10,13 +10,25 @@ logger = logging.getLogger(__name__)
 
 
 class AiNarrativeService:
-    """AI 서술형 설명 생성 서비스"""
+    """AI 서술형 설명 생성 서비스 (Ollama 기반)"""
 
-    # 서술 스타일 프롬프트
-    NARRATIVE_STYLE_PROMPT = """당신은 한국 문화유산 전문 해설가입니다.
-주어진 유물 이름에 대해 소설처럼 아름답고 서술적인 설명을 작성해주세요.
+    @staticmethod
+    def _create_narrative_prompt(artifact_name: str) -> str:
+        """
+        서술형 스타일 프롬프트 생성
 
-작성 규칙:
+        Args:
+            artifact_name: 유물 이름
+
+        Returns:
+            프롬프트 문자열
+        """
+        return f"""당신은 한국 문화유산 전문 해설가입니다.
+주어진 유물에 대해 소설처럼 아름답고 서술적인 설명을 작성해주세요.
+
+📌 유물 이름: {artifact_name}
+
+📝 작성 규칙:
 1. 3개의 단락으로 구성 (각 단락은 2-3문장)
 2. 첫 단락: 유물의 역사적 배경과 시대적 의미
 3. 둘째 단락: 유물의 건축/제작 특징과 과학적/예술적 가치
@@ -24,15 +36,14 @@ class AiNarrativeService:
 5. 문체: 서정적이고 품격있는 문어체 사용
 6. 사실을 기반으로 하되, 감성적으로 서술
 7. 총 200-300자 정도의 분량
+8. 존댓말 사용하지 않고 평서문으로 작성
 
-유물 이름: {artifact_name}
-
-위 유물에 대한 AI 해설을 작성해주세요:"""
+위 유물에 대한 AI 해설:"""
 
     @staticmethod
-    def generate_narrative_with_openai(artifact_name: str) -> Optional[str]:
+    def generate_narrative_with_ollama(artifact_name: str) -> Optional[str]:
         """
-        OpenAI API를 사용하여 AI 서술형 설명 생성
+        Ollama를 사용하여 AI 서술형 설명 생성
 
         Args:
             artifact_name: 유물 이름
@@ -41,52 +52,59 @@ class AiNarrativeService:
             생성된 서술형 설명 또는 None
         """
         try:
-            # OpenAI API 키 확인
-            api_key = os.environ.get('OPENAI_API_KEY')
-            if not api_key:
-                logger.warning("OPENAI_API_KEY not found in environment")
-                return None
+            # OllamaService import (순환 참조 방지를 위해 함수 내에서 import)
+            from .services import OllamaService
+            import httpx
+            import json
 
-            # OpenAI 클라이언트 import
-            try:
-                from openai import OpenAI
-            except ImportError:
-                logger.error("openai package not installed. Install with: pip install openai")
-                return None
+            # 서술형 프롬프트 생성
+            prompt = AiNarrativeService._create_narrative_prompt(artifact_name)
 
-            # OpenAI 클라이언트 생성
-            client = OpenAI(api_key=api_key)
+            # Ollama API 호출
+            full_text = ""
 
-            # 프롬프트 생성
-            prompt = AiNarrativeService.NARRATIVE_STYLE_PROMPT.format(
-                artifact_name=artifact_name
-            )
-
-            # API 호출
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",  # 비용 효율적인 모델
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "당신은 한국 문화유산 전문 해설가입니다."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
+            with httpx.stream(
+                'POST',
+                f'{OllamaService.OLLAMA_BASE_URL}/api/generate',
+                json={
+                    'model': OllamaService.DEFAULT_MODEL,
+                    'prompt': prompt,
+                    'stream': True,
+                    'options': {
+                        'temperature': 0.7,
+                        'top_p': 0.9,
+                        'num_predict': 500,
                     }
-                ],
-                max_tokens=500,
-                temperature=0.7,
-            )
+                },
+                timeout=60.0
+            ) as response:
 
-            # 응답 추출
-            narrative = response.choices[0].message.content.strip()
+                if response.status_code != 200:
+                    logger.error(f'Ollama API error: {response.status_code}')
+                    return None
+
+                for line in response.iter_lines():
+                    if line.strip():
+                        try:
+                            data = json.loads(line)
+
+                            if 'response' in data:
+                                full_text += data['response']
+
+                            if data.get('done', False):
+                                break
+
+                        except json.JSONDecodeError as e:
+                            logger.error(f'JSON decode error: {str(e)}')
+                            continue
+
+            narrative = full_text.strip()
             logger.info(f"Generated narrative for '{artifact_name}': {len(narrative)} characters")
 
-            return narrative
+            return narrative if narrative else None
 
         except Exception as e:
-            logger.error(f"Error generating narrative with OpenAI: {e}")
+            logger.error(f"Error generating narrative with Ollama: {e}")
             return None
 
     @staticmethod
@@ -125,13 +143,13 @@ class AiNarrativeService:
 앞으로도 이 문화유산이 후대에 잘 전승되어, 우리의 역사와 정체성을 이어가는 소중한 매개체가 되기를 바랍니다."""
 
     @staticmethod
-    def generate_narrative(artifact_name: str, use_openai: bool = True) -> str:
+    def generate_narrative(artifact_name: str, use_ai: bool = True) -> str:
         """
         AI 서술형 설명 생성
 
         Args:
             artifact_name: 유물 이름
-            use_openai: OpenAI API 사용 여부 (기본값: True)
+            use_ai: Ollama AI 사용 여부 (기본값: True)
 
         Returns:
             생성된 서술형 설명
@@ -139,9 +157,9 @@ class AiNarrativeService:
         if not artifact_name:
             return ""
 
-        # OpenAI 사용 시도
-        if use_openai:
-            narrative = AiNarrativeService.generate_narrative_with_openai(artifact_name)
+        # Ollama 사용 시도
+        if use_ai:
+            narrative = AiNarrativeService.generate_narrative_with_ollama(artifact_name)
             if narrative:
                 return narrative
             logger.info(f"Falling back to template for '{artifact_name}'")

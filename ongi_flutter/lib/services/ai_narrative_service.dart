@@ -8,17 +8,17 @@ class AiNarrativeService {
   /// 캐시된 설명 저장소 (메모리 캐시)
   static final Map<String, String> _narrativeCache = {};
 
-  /// AI 서술형 설명 생성
+  /// AI 서술형 설명 생성 (Ollama llama3.1:8b)
   ///
   /// [artifactName] 유물 이름
   /// [useCache] 캐시 사용 여부 (기본값: true)
-  /// [useOpenai] OpenAI 사용 여부 (기본값: true)
+  /// [useAi] Ollama AI 사용 여부 (기본값: true)
   ///
   /// 반환값: AI 생성된 서술형 설명 또는 null
   static Future<String?> generateNarrative(
     String artifactName, {
     bool useCache = true,
-    bool useOpenai = true,
+    bool useAi = true,
   }) async {
     if (artifactName.isEmpty) return null;
 
@@ -37,7 +37,7 @@ class AiNarrativeService {
         },
         body: jsonEncode({
           'artifact_name': artifactName,
-          'use_openai': useOpenai,
+          'use_ai': useAi,
         }),
       );
 

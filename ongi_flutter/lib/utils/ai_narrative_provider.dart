@@ -27,11 +27,11 @@ class AiNarrativeProvider {
     _generatingArtifacts.add(artifactName);
 
     try {
-      // 백엔드 API로 AI 서술형 설명 생성
+      // 백엔드 API로 AI 서술형 설명 생성 (Ollama llama3.1:8b)
       final narrative = await AiNarrativeService.generateNarrative(
         artifactName,
         useCache: true,
-        useOpenai: true,
+        useAi: true,
       );
 
       if (narrative != null && onGenerated != null) {

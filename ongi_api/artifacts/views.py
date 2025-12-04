@@ -203,24 +203,24 @@ def regenerate_artifact_description(request, artifact_id):
 @api_view(['POST'])
 def generate_ai_narrative(request):
     """
-    유물 이름으로 AI 서술형 설명 생성
+    유물 이름으로 AI 서술형 설명 생성 (Ollama llama3.1:8b 사용)
 
     POST /api/artifacts/generate-narrative/
     Body:
     {
         "artifact_name": "첨성대",
-        "use_openai": true  // optional, default: true
+        "use_ai": true  // optional, default: true
     }
 
     Response:
     {
         "artifact_name": "첨성대",
         "narrative": "신라의 밤하늘을 향해...",
-        "method": "openai" or "template"
+        "method": "ollama" or "template"
     }
     """
     artifact_name = request.data.get('artifact_name')
-    use_openai = request.data.get('use_openai', True)
+    use_ai = request.data.get('use_ai', True)
 
     if not artifact_name:
         return Response(
@@ -228,16 +228,16 @@ def generate_ai_narrative(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # AI 서술형 설명 생성
+    # AI 서술형 설명 생성 (Ollama)
     narrative = AiNarrativeService.generate_narrative(
         artifact_name=artifact_name,
-        use_openai=use_openai
+        use_ai=use_ai
     )
 
-    # 생성 방법 확인
+    # 생성 방법 확인 (템플릿 fallback 문구로 판단)
     method = "template"
-    if use_openai and "천 년의 시간" not in narrative and "문화유산입니다" not in narrative:
-        method = "openai"
+    if use_ai and "천 년의 시간" not in narrative and "문화유산입니다" not in narrative:
+        method = "ollama"
 
     return Response({
         'artifact_name': artifact_name,
