@@ -66,11 +66,11 @@ public class OrbitCamera : MonoBehaviour
     /// </summary>
     private void HandleInput()
     {
-        #if UNITY_EDITOR || UNITY_STANDALONE
+#if UNITY_EDITOR || UNITY_STANDALONE
         HandleMouseInput();
-        #else
+#else
         HandleTouchInput();
-        #endif
+#endif
     }
 
     /// <summary>
@@ -255,7 +255,7 @@ public class OrbitCamera : MonoBehaviour
         if (maxSize < 0.001f)
         {
             Debug.LogWarning($"[OrbitCamera] Invalid bounds size ({size}), using default camera position");
-            ResetCamera(null, initialDistance);
+            ResetCamera(initialDistance);  // 수정: 2개 인수를 1개로 변경
             return;
         }
 

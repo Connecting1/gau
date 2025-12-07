@@ -20,7 +20,7 @@ extern void OrbitCamera_HandleTouchInput_mFCC2E0F3C83F6F44540DC8B9C0D23C9C0AA4B5
 extern void OrbitCamera_SmoothCamera_m1C1A73A4D88D12CA92BE4302848C5D508FAE413A (void);
 extern void OrbitCamera_UpdateCameraPosition_mB6890E5693562DDD93D92FBDACA3C38B735F737B (void);
 extern void OrbitCamera_SetTarget_m3E7067F8A3000D07580AF3092EE139F990C40252 (void);
-extern void OrbitCamera_ResetCamera_mEE2A07BF6C195E18510A59F22B6FBDE755FEAAF1 (void);
+extern void OrbitCamera_ResetCamera_m28AEC8EEBCD8623B25016C343FD652B7481929C0 (void);
 extern void OrbitCamera_SetZoomDistance_m01AF24438644B23810799E1D22CE92DE0FE10877 (void);
 extern void OrbitCamera_AutoFrameBounds_m258B09F3B3CAA01A5C7F4B498865776F6EBFB684 (void);
 extern void OrbitCamera__ctor_mBD7B0ECF7BF13E82D34045F4AFD9D8A88A2DFCB7 (void);
@@ -79,7 +79,7 @@ static Il2CppMethodPointer s_methodPointers[57] =
 	OrbitCamera_SmoothCamera_m1C1A73A4D88D12CA92BE4302848C5D508FAE413A,
 	OrbitCamera_UpdateCameraPosition_mB6890E5693562DDD93D92FBDACA3C38B735F737B,
 	OrbitCamera_SetTarget_m3E7067F8A3000D07580AF3092EE139F990C40252,
-	OrbitCamera_ResetCamera_mEE2A07BF6C195E18510A59F22B6FBDE755FEAAF1,
+	OrbitCamera_ResetCamera_m28AEC8EEBCD8623B25016C343FD652B7481929C0,
 	OrbitCamera_SetZoomDistance_m01AF24438644B23810799E1D22CE92DE0FE10877,
 	OrbitCamera_AutoFrameBounds_m258B09F3B3CAA01A5C7F4B498865776F6EBFB684,
 	OrbitCamera__ctor_mBD7B0ECF7BF13E82D34045F4AFD9D8A88A2DFCB7,
@@ -138,28 +138,28 @@ static const int32_t s_InvokerIndices[57] =
 	1632,
 	1632,
 	1632,
-	768,
-	630,
+	767,
+	1268,
 	1353,
 	453,
 	1632,
-	2823,
-	2885,
+	2822,
+	2883,
 	1860,
 	2311,
 	1872,
 	1749,
 	2570,
-	2991,
+	2989,
 	1632,
-	932,
+	931,
 	1632,
 	1598,
 	1335,
-	1207,
+	1206,
 	1632,
 	1632,
-	761,
+	760,
 	1632,
 	1322,
 	1632,
@@ -173,7 +173,7 @@ static const int32_t s_InvokerIndices[57] =
 	1598,
 	1632,
 	1598,
-	3042,
+	3040,
 	1632,
 	1335,
 	1335,
@@ -186,7 +186,7 @@ static const int32_t s_InvokerIndices[57] =
 	1335,
 	1632,
 	1632,
-	3067,
+	3065,
 	1632,
 };
 IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
