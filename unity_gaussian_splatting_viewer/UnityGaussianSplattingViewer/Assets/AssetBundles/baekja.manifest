@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 769726913
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 7302bf1fa173ed2f5a4b5e98c25d31fd
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 83b5d7a381412d83df9fb97447a72d69
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 7302bf1fa173ed2f5a4b5e98c25d31fd
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 33b71fae31e6c7d438e8566dc713e666, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Hash128
+Assets:
+- Assets/GaussianAssets/DATA8.asset
+Dependencies: []

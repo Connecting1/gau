@@ -80,7 +80,7 @@ flutter:
       fonts:
         - asset: assets/fonts/UnPenheulim.ttf
   assets:
-    - assets/signup_background.png
+    - assets/signup_background.jpg
     - assets/logos/google_logo.png
     - assets/images/default_profile.png
     - assets/images/eaves.png

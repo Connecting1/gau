@@ -3,15 +3,15 @@
   "WorkspaceRootPath": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\assets\\scripts\\splatloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|c:\\sanhak\\unity_gaussian_splatting_viewer\\unitygaussiansplattingviewer\\assets\\scripts\\splatloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\splatloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1BAC5266-E976-BD42-D91F-90BF4C549BB7}|Assembly-CSharp-Editor.csproj|c:\\sanhak\\unity_gaussian_splatting_viewer\\unitygaussiansplattingviewer\\assets\\scripts\\editor\\buildassetbundles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1BAC5266-E976-BD42-D91F-90BF4C549BB7}|Assembly-CSharp-Editor.csproj|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\assets\\scripts\\editor\\buildassetbundles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1BAC5266-E976-BD42-D91F-90BF4C549BB7}|Assembly-CSharp-Editor.csproj|solutionrelative:assets\\scripts\\editor\\buildassetbundles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|c:\\sanhak\\unity_gaussian_splatting_viewer\\unitygaussiansplattingviewer\\assets\\scripts\\orbitcamera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\assets\\scripts\\orbitcamera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A4984E50-C4CA-F38C-C332-398DFABD041A}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\orbitcamera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -46,8 +46,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Editor\\BuildAssetBundles.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAGAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T03:58:53.064Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-29T03:58:53.064Z"
             },
             {
               "$type": "Document",
@@ -59,8 +58,7 @@
               "RelativeToolTip": "Assets\\Scripts\\OrbitCamera.cs",
               "ViewState": "AQIAACUAAAAAAAAAAAAUwDoAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-28T18:48:39.579Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-28T18:48:39.579Z"
             },
             {
               "$type": "Document",
@@ -72,8 +70,7 @@
               "RelativeToolTip": "Library\\PackageCache\\com.unity.burst@1.8.26\\Editor\\BurstAotCompiler.cs",
               "ViewState": "AQIAANQEAAAAAAAAAAAUwOsEAAAjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-26T15:23:25.503Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-26T15:23:25.503Z"
             },
             {
               "$type": "Document",
@@ -95,7 +92,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\SplatLoader.cs",
               "ToolTip": "C:\\sanhak\\unity_gaussian_splatting_viewer\\UnityGaussianSplattingViewer\\Assets\\Scripts\\SplatLoader.cs",
               "RelativeToolTip": "Assets\\Scripts\\SplatLoader.cs",
-              "ViewState": "AQIAAGAAAAAAAAAAAAAuwHAAAAAwAAAA",
+              "ViewState": "AQIAAFsAAAAAAAAAAAAswHAAAAAwAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-26T14:41:05.466Z",
               "EditorCaption": ""

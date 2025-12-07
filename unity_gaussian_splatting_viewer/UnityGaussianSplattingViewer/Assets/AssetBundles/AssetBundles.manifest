@@ -1,7 +1,28 @@
 ManifestFileVersion: 0
-CRC: 3529245348
+CRC: 3496108256
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
       Name: cheomseongdae
+      Dependencies: {}
+    Info_1:
+      Name: buldo
+      Dependencies: {}
+    Info_2:
+      Name: gyotong
+      Dependencies: {}
+    Info_3:
+      Name: baekja
+      Dependencies: {}
+    Info_4:
+      Name: chungja
+      Dependencies: {}
+    Info_5:
+      Name: ddongjaseung
+      Dependencies: {}
+    Info_6:
+      Name: miruk
+      Dependencies: {}
+    Info_7:
+      Name: wangan
       Dependencies: {}

@@ -15,7 +15,7 @@ class SignUpStartPage extends StatefulWidget {
 }
 
 class _SignUpStartPageState extends State<SignUpStartPage> {
-  static const String _backgroundImagePath = "assets/signup_background.png";
+  static const String _backgroundImagePath = "assets/signup_background.jpg";
   static const String _googleLogoPath = 'assets/logos/google_logo.png';
   static const String _appTitle = '온\n기';
   static const String _loginButtonText = '로그인';

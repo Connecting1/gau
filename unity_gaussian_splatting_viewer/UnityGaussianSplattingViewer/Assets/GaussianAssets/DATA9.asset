@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33b71fae31e6c7d438e8566dc713e666, type: 3}
+  m_Name: DATA9
+  m_EditorClassIdentifier: 
+  m_FormatVersion: 20231020
+  m_SplatCount: 144588
+  m_BoundsMin: {x: -6.891637, y: -8.338578, z: 2.2668016}
+  m_BoundsMax: {x: 6.858809, y: 1.2068553, z: 8.888162}
+  m_DataHash:
+    serializedVersion: 2
+    Hash: f95a20cb891ad84b548af79389ad7a80
+  m_PosFormat: 2
+  m_ScaleFormat: 3
+  m_SHFormat: 8
+  m_ColorFormat: 3
+  m_PosData: {fileID: 4900000, guid: b74724c9ee7f9344ba29138c46b9a101, type: 3}
+  m_ColorData: {fileID: 4900000, guid: c1c1d81d16bb6cb4fa602b2590906f9b, type: 3}
+  m_OtherData: {fileID: 4900000, guid: b71c185f99b8ff848971081537620990, type: 3}
+  m_SHData: {fileID: 4900000, guid: ef98c39d694009840a1aa83804135898, type: 3}
+  m_ChunkData: {fileID: 4900000, guid: d1ac0fb736ae65449b0f51bcec30aa88, type: 3}
+  m_Cameras: []
