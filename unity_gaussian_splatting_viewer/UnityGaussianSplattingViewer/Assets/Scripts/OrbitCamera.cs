@@ -242,4 +242,41 @@ public class OrbitCamera : MonoBehaviour
     {
         targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
     }
+
+    /// <summary>
+    /// 바운딩 박스에 맞춰 카메라 자동 조정
+    /// 모델이 화면 중앙에 잘 보이도록 설정
+    /// </summary>
+    public void AutoFrameBounds(Vector3 boundsMin, Vector3 boundsMax, float padding = 1.5f)
+    {
+        // 바운딩 박스 중심 계산
+        Vector3 center = (boundsMin + boundsMax) / 2f;
+
+        // 바운딩 박스 크기 계산
+        Vector3 size = boundsMax - boundsMin;
+        float maxSize = Mathf.Max(size.x, size.y, size.z);
+
+        // 적절한 카메라 거리 계산 (모델이 화면에 잘 보이도록)
+        // padding 값이 클수록 모델이 작게 보임
+        float distance = maxSize * padding;
+        distance = Mathf.Clamp(distance, minDistance, maxDistance);
+
+        // 타겟을 모델 중심으로 설정
+        if (target != null)
+        {
+            target.position = center;
+        }
+
+        // 카메라 위치와 각도 설정 (약간 위에서 정면을 보는 각도)
+        currentDistance = distance;
+        targetDistance = distance;
+        currentRotationX = 15f;  // 15도 위에서 (자연스러운 조망 각도)
+        targetRotationX = 15f;
+        currentRotationY = 0f;   // 정면
+        targetRotationY = 0f;
+
+        UpdateCameraPosition();
+
+        Debug.Log($"[OrbitCamera] Auto-framed: center={center}, size={size}, distance={distance}");
+    }
 }

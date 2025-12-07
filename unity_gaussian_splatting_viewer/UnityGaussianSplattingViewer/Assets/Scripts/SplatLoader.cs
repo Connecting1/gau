@@ -88,19 +88,34 @@ public class SplatLoader : MonoBehaviour
         }
     }
 
-    // ▼▼▼ [새로 추가된 함수] 카메라를 찾아서 모델을 비추게 함 ▼▼▼
+    // ▼▼▼ [개선된 함수] 모델 바운딩 박스에 맞춰 카메라 자동 조정 ▼▼▼
     void ResetCamera()
     {
-        // 씬에 있는 OrbitCamera를 찾아서 리셋 명령을 내림
+        // 씬에 있는 OrbitCamera를 찾음
         var orbitCam = FindObjectOfType<OrbitCamera>();
-        if (orbitCam != null)
+        if (orbitCam == null)
         {
-            orbitCam.ResetCamera();
-            Debug.Log("Camera Reset Done.");
+            Debug.LogWarning("OrbitCamera not found!");
+            return;
+        }
+
+        // 현재 로딩된 에셋의 바운딩 박스 정보를 사용
+        if (currentAsset != null)
+        {
+            Vector3 boundsMin = currentAsset.boundsMin;
+            Vector3 boundsMax = currentAsset.boundsMax;
+
+            // 바운딩 박스 기반으로 카메라 자동 조정
+            // padding 값을 조정하여 모델이 화면에 보이는 크기 조절 가능
+            orbitCam.AutoFrameBounds(boundsMin, boundsMax, padding: 1.8f);
+
+            Debug.Log($"Camera Auto-Framed: bounds=({boundsMin} ~ {boundsMax})");
         }
         else
         {
-            Debug.LogWarning("OrbitCamera not found!");
+            // 에셋이 없으면 기본 리셋
+            orbitCam.ResetCamera();
+            Debug.Log("Camera Reset to Default.");
         }
     }
 
