@@ -88,20 +88,44 @@ public class SplatLoader : MonoBehaviour
         }
     }
 
-    // ▼▼▼ [새로 추가된 함수] 카메라를 찾아서 모델을 비추게 함 ▼▼▼
+    // ▼▼▼ 카메라를 모델 중심으로 설정 ▼▼▼
     void ResetCamera()
     {
-        // 씬에 있는 OrbitCamera를 찾아서 리셋 명령을 내림
         var orbitCam = FindObjectOfType<OrbitCamera>();
-        if (orbitCam != null)
-        {
-            orbitCam.ResetCamera();
-            Debug.Log("Camera Reset Done.");
-        }
-        else
+        if (orbitCam == null)
         {
             Debug.LogWarning("OrbitCamera not found!");
+            return;
         }
+
+        if (currentAsset == null || splatRenderer == null)
+        {
+            Debug.LogWarning("No asset loaded!");
+            return;
+        }
+
+        // 1. 모델의 bounds 계산
+        Vector3 boundsMin = currentAsset.boundsMin;
+        Vector3 boundsMax = currentAsset.boundsMax;
+        Vector3 center = (boundsMin + boundsMax) * 0.5f;
+        Vector3 size = boundsMax - boundsMin;
+        float maxSize = Mathf.Max(size.x, size.y, size.z);
+
+        // 2. 모델 Transform 적용 (모델이 회전/이동되었을 경우 대비)
+        Transform modelTransform = splatRenderer.transform;
+        Vector3 worldCenter = modelTransform.TransformPoint(center);
+
+        // 3. 카메라 거리 계산 (모델 크기의 1.5배)
+        float distance = maxSize * 1.5f;
+
+        Debug.Log($"[SplatLoader] Model bounds: min={boundsMin}, max={boundsMax}");
+        Debug.Log($"[SplatLoader] Model center: {worldCenter}, size: {size}, distance: {distance}");
+
+        // 4. OrbitCamera 타겟을 모델 중심으로 설정
+        orbitCam.SetTarget(modelTransform, center);
+        orbitCam.ResetCamera(worldCenter, distance);
+
+        Debug.Log($"[SplatLoader] Camera reset to model center: {worldCenter}");
     }
 
     public void UnloadCurrentModel()
