@@ -159,28 +159,29 @@ public class SplatLoader : MonoBehaviour
             return;
         }
 
-        // 1. 모델의 bounds 계산
+        // 1. 모델의 bounds 계산 (로컬 공간)
         Vector3 boundsMin = currentAsset.boundsMin;
         Vector3 boundsMax = currentAsset.boundsMax;
-        Vector3 center = (boundsMin + boundsMax) * 0.5f;
+        Vector3 localCenter = (boundsMin + boundsMax) * 0.5f;
         Vector3 size = boundsMax - boundsMin;
         float maxSize = Mathf.Max(size.x, size.y, size.z);
 
-        // 2. 모델 Transform 적용 (모델이 회전/이동되었을 경우 대비)
+        // 2. 카메라 거리 계산 (모델 크기의 1.8배로 여유있게)
+        float distance = maxSize * 1.8f;
+
+        // 3. 모델 Transform과 로컬 중심을 OrbitCamera 타겟으로 설정
         Transform modelTransform = splatRenderer.transform;
-        Vector3 worldCenter = modelTransform.TransformPoint(center);
+        orbitCam.SetTarget(modelTransform, localCenter);
 
-        // 3. 카메라 거리 계산 (모델 크기의 1.5배)
-        float distance = maxSize * 1.5f;
+        // 4. 카메라 위치 리셋
+        orbitCam.ResetCamera(distance);
 
+        // 5. 디버그 로그 (월드 공간 좌표로 변환해서 출력)
+        Vector3 worldCenter = modelTransform.TransformPoint(localCenter);
         Debug.Log($"[SplatLoader] Model bounds: min={boundsMin}, max={boundsMax}");
-        Debug.Log($"[SplatLoader] Model center: {worldCenter}, size: {size}, distance: {distance}");
-
-        // 4. OrbitCamera 타겟을 모델 중심으로 설정
-        orbitCam.SetTarget(modelTransform, center);
-        orbitCam.ResetCamera(worldCenter, distance);
-
-        Debug.Log($"[SplatLoader] Camera reset to model center: {worldCenter}");
+        Debug.Log($"[SplatLoader] Local center: {localCenter}, World center: {worldCenter}");
+        Debug.Log($"[SplatLoader] Size: {size}, Distance: {distance}");
+        Debug.Log($"[SplatLoader] Camera target set to model center");
     }
 
     public void UnloadCurrentModel()
