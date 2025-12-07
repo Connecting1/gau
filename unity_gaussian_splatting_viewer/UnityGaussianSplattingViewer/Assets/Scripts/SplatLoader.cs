@@ -40,10 +40,15 @@ public class SplatLoader : MonoBehaviour
 
         if (!File.Exists(filePath))
         {
-            Debug.LogError("File not found: " + filePath);
+            Debug.LogError($"[SplatLoader] File not found: {filePath}");
             SendMessageToFlutter("error", "File not found");
             yield break;
         }
+
+        // 파일 정보 로그
+        FileInfo fileInfo = new FileInfo(filePath);
+        Debug.Log($"[SplatLoader] File size: {fileInfo.Length} bytes");
+        Debug.Log($"[SplatLoader] File path: {filePath}");
 
         // 2. AssetBundle 로드
         var bundleRequest = AssetBundle.LoadFromFileAsync(filePath);
@@ -56,10 +61,14 @@ public class SplatLoader : MonoBehaviour
         currentBundle = bundleRequest.assetBundle;
         if (currentBundle == null)
         {
-            Debug.LogError("Failed to load AssetBundle");
+            Debug.LogError($"[SplatLoader] Failed to load AssetBundle from: {filePath}");
+            Debug.LogError($"[SplatLoader] File exists: {File.Exists(filePath)}");
+            Debug.LogError($"[SplatLoader] Possible reasons: corrupted file, wrong platform, or not a valid AssetBundle");
             SendMessageToFlutter("error", "Failed to load AssetBundle");
             yield break;
         }
+
+        Debug.Log($"[SplatLoader] AssetBundle loaded successfully: {currentBundle.name}");
 
         // 3. 에셋 로드
         var assetRequest = currentBundle.LoadAllAssetsAsync<GaussianSplatAsset>();
@@ -72,14 +81,29 @@ public class SplatLoader : MonoBehaviour
         if (assetRequest.allAssets.Length > 0)
         {
             currentAsset = assetRequest.allAssets[0] as GaussianSplatAsset;
+
+            if (currentAsset == null)
+            {
+                Debug.LogError("Failed to cast asset to GaussianSplatAsset");
+                SendMessageToFlutter("error", "Invalid Asset Type");
+                yield break;
+            }
+
+            // 바운딩 박스 정보 로그 출력
+            Debug.Log($"Asset Bounds: Min={currentAsset.boundsMin}, Max={currentAsset.boundsMax}");
+            Debug.Log($"Asset Splat Count: {currentAsset.splatCount}");
+
             splatRenderer.m_Asset = currentAsset;
             splatRenderer.gameObject.SetActive(true);
+
+            // 렌더러가 완전히 준비될 때까지 한 프레임 대기
+            yield return new WaitForEndOfFrame();
 
             Debug.Log("Model Loaded Successfully!");
             SendMessageToFlutter("loading_completed", "Success");
 
-            // 4. 카메라 위치 자동 조정 (누락되었던 부분 추가!)
-            Invoke("ResetCamera", 0.1f);
+            // 4. 카메라 위치 자동 조정 - 직접 호출 (Invoke 제거)
+            ResetCamera();
         }
         else
         {
