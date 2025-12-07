@@ -249,22 +249,38 @@ public class OrbitCamera : MonoBehaviour
     /// </summary>
     public void AutoFrameBounds(Vector3 boundsMin, Vector3 boundsMax, float padding = 1.5f)
     {
-        // 바운딩 박스 중심 계산
-        Vector3 center = (boundsMin + boundsMax) / 2f;
+        Debug.Log($"[OrbitCamera] AutoFrameBounds called: boundsMin={boundsMin}, boundsMax={boundsMax}");
 
-        // 바운딩 박스 크기 계산
+        // 바운딩 박스 유효성 검사
         Vector3 size = boundsMax - boundsMin;
         float maxSize = Mathf.Max(size.x, size.y, size.z);
+
+        if (maxSize < 0.001f)
+        {
+            Debug.LogWarning($"[OrbitCamera] Invalid bounds size ({size}), using default camera position");
+            ResetCamera(null, initialDistance);
+            return;
+        }
+
+        // 바운딩 박스 중심 계산
+        Vector3 center = (boundsMin + boundsMax) / 2f;
 
         // 적절한 카메라 거리 계산 (모델이 화면에 잘 보이도록)
         // padding 값이 클수록 모델이 작게 보임
         float distance = maxSize * padding;
         distance = Mathf.Clamp(distance, minDistance, maxDistance);
 
+        Debug.Log($"[OrbitCamera] Calculated - center={center}, size={size}, maxSize={maxSize}, distance={distance}");
+
         // 타겟을 모델 중심으로 설정
         if (target != null)
         {
             target.position = center;
+            Debug.Log($"[OrbitCamera] Target position set to: {center}");
+        }
+        else
+        {
+            Debug.LogWarning("[OrbitCamera] Target is null!");
         }
 
         // 카메라 위치와 각도 설정 (약간 위에서 정면을 보는 각도)
@@ -277,6 +293,7 @@ public class OrbitCamera : MonoBehaviour
 
         UpdateCameraPosition();
 
-        Debug.Log($"[OrbitCamera] Auto-framed: center={center}, size={size}, distance={distance}");
+        Debug.Log($"[OrbitCamera] Auto-framed successfully!");
+        Debug.Log($"[OrbitCamera] Camera position: {transform.position}, looking at: {center}");
     }
 }
