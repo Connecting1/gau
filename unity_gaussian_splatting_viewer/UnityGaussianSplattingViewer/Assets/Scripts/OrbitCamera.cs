@@ -196,7 +196,9 @@ public class OrbitCamera : MonoBehaviour
 
         Quaternion rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
         Vector3 direction = rotation * Vector3.back;
-        Vector3 targetPosition = target.position + targetOffset;
+
+        // targetOffset을 로컬 공간에서 월드 공간으로 변환
+        Vector3 targetPosition = target.TransformPoint(targetOffset);
 
         transform.position = targetPosition + direction * currentDistance;
         transform.LookAt(targetPosition);
@@ -212,15 +214,10 @@ public class OrbitCamera : MonoBehaviour
     }
 
     /// <summary>
-    /// 카메라를 특정 위치로 리셋
+    /// 카메라를 리셋 (거리만 설정)
     /// </summary>
-    public void ResetCamera(Vector3? position = null, float? distance = null)
+    public void ResetCamera(float? distance = null)
     {
-        if (position.HasValue && target != null)
-        {
-            target.position = position.Value;
-        }
-
         if (distance.HasValue)
         {
             currentDistance = distance.Value;
